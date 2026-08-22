@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "CommonJS",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "outDir": "dist",
+    "types": ["node", "@playwright/test"]
+  },
+  "include": ["c_steps/**/*.ts", "a_pages/**/*.ts", "reporter/**/*.ts", "c_steps/fixtures.ts", "b_features/pilotProject/example.spec.ts"]
+}

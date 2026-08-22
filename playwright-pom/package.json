@@ -1,0 +1,10 @@
+{
+  "scripts": {
+    "test": "npx playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.56.0",
+    "@types/node": "^26.2.0",
+    "typescript": "^5.4.0"
+  }
+}
