@@ -1,0 +1,11 @@
+{
+    "platformName": "iOS",
+    "deviceName": "iPhone Xs",
+    "platformVersion": "18.2",
+    "automationName": "XCUITest",
+    "udid": "00008020-000915DC0EF9002E",
+    "xcodeOrgId": "<your-xcode-org-id>", 
+    "xcodeSigningId": "iPhone Developer",
+    "app": "/Users/titor/Downloads/opmre-staging.ipa",
+    "noReset": true
+}

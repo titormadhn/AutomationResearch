@@ -1,0 +1,19 @@
+# Field IDs for Login Functionality
+
+## Input Fields
+username_field = "username"
+password_field = "password"
+
+## Buttons
+login_button = "login"
+
+## Pages
+login_page = //h1[text()="Welcome back"]
+dashboard_page = //h1[text()="Dashboard Karyawan"]
+
+## Notifications
+success_notification = "success_notification"
+error_notification = "error_notification"
+
+## System Elements
+credentials_verification = "credentials_verification"

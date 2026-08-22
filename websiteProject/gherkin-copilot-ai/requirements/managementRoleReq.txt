@@ -1,0 +1,8 @@
+beberapa ketentuan:
+- URL https://wgs-emp-fe.stagingapps.net/
+- Browser menggunakan Chrome
+
+credentials:
+HR
+- username : user_hradm_001
+- password : Password1

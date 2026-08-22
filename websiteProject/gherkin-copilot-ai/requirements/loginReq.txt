@@ -1,0 +1,5 @@
+beberapa ketentuan:
+- URL https://wgs-emp-fe.stagingapps.net/
+- Browser menggunakan ChromeEE
+
+- tambahkan screen shot page embed di akhir setiap test case
