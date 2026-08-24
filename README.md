@@ -1,282 +1,102 @@
 # AutomationResearch
 
-Kumpulan automation test berbasis [Robot Framework](https://robotframework.org/) untuk kebutuhan regression testing QA. Repository ini berisi tiga area project dengan cakupan website, mobile Android/iOS, API, dan contoh integrasi database.
+Berikut ini adalah kumpulan automation test berbasis Robot Framework. Repository ini menggabungkan kebutuhan pengujian website, mobile, API, dan database dari `pilotProject`, `chatshopProject`, serta `websiteProject`.
 
-## Daftar Isi
+## Setup Awal dan Dependencies
 
-- [Ringkasan Project](#ringkasan-project)
-- [Prasyarat](#prasyarat)
-- [Setup Instalasi Awal](#setup-instalasi-awal)
-- [Konfigurasi Sebelum Menjalankan Test](#konfigurasi-sebelum-menjalankan-test)
-- [Menjalankan Test](#menjalankan-test)
-- [Output dan Report](#output-dan-report)
-- [Struktur Worktree](#struktur-worktree)
-- [Alur Kerja Singkat](#alur-kerja-singkat)
-- [Troubleshooting](#troubleshooting)
+Sebelum mulai, siapkan beberapa kebutuhan berikut:
 
-## Ringkasan Project
+- Windows 10/11, Python 3.10 atau versi yang lebih baru, Visual Studio Code, dan Git.
+- Google Chrome serta ChromeDriver yang sesuai untuk test website.
+- Node.js/npm, Android SDK Platform Tools, device atau emulator Android, dan Appium Server 2 untuk test mobile.
+- macOS, Xcode, WebDriverAgent, dan driver `xcuitest` hanya jika ingin menjalankan referensi iOS.
 
-| Folder | Fokus | Platform/jenis test |
-| --- | --- | --- |
-| `chatshopProject` | Dashboard affiliate dan fitur multiproduk | Website desktop, website melalui Chrome Android, dan beberapa alur WhatsApp |
-| `pilotProject` | Contoh automation dan pilot test | Website, Android native/Flutter, API, dan contoh database |
-| `websiteProject` | Automation HR/Pagii CMS serta workflow Gherkin | Website dengan Selenium dan extension CAPTCHA |
-
-File `.feature` berisi skenario Gherkin, file `.robot` adalah test suite yang dijalankan Robot Framework, dan file `.resource` berisi keyword, locator, serta konfigurasi yang dipakai ulang.
-
-## Prasyarat
-
-### Semua platform
-
-- Windows 10/11
-- Python 3.10 atau lebih baru
-- Visual Studio Code
-- Git
-- Node.js dan npm, jika menjalankan Appium mobile
-
-### Website
-
-- Google Chrome
-- ChromeDriver yang kompatibel dengan Chrome. Selenium versi modern biasanya dapat mengelolanya otomatis, tetapi ChromeDriver tetap dapat dipasang dan dimasukkan ke `PATH` bila environment memakai konfigurasi lama.
-- Extension CAPTCHA yang diperlukan oleh project website. Extension yang tersedia ada di `websiteProject/extensions` dan `pilotProject/pilotprojectWebsite/utility/extensions`.
-
-### Android
-
-- Android Studio atau Android SDK Platform Tools
-- Android Emulator atau perangkat Android fisik
-- USB debugging aktif untuk perangkat fisik
-- `adb` tersedia di `PATH`
-- Appium Server 2 dan driver `uiautomator2`
-- APK yang akan dites
-
-Periksa instalasi dasar:
+Buka terminal di root repository, yaitu folder yang berisi tiga folder project tersebut. Buat virtual environment agar dependency repository tidak bercampur dengan Python project lain:
 
 ```powershell
-python --version
-pip --version
-adb version
-node --version
-appium --version
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install --upgrade pip
+python -m pip install robotframework robotframework-seleniumlibrary robotframework-appiumlibrary robotframework-requests robotframework-databaselibrary
 ```
 
-Untuk iOS, test membutuhkan macOS, Xcode, WebDriverAgent, dan driver `xcuitest`. Konfigurasi iOS yang ada di repository merupakan referensi dan tidak dapat dijalankan dari Windows.
+Library yang digunakan di dalam project antara lain:
 
-## Setup Instalasi Awal
+- `SeleniumLibrary` untuk menjalankan test website.
+- `AppiumLibrary` untuk menjalankan test Android dan referensi iOS.
+- `RequestsLibrary` untuk mengirim request dan memeriksa response API.
+- `DatabaseLibrary` untuk terhubung ke database dan memeriksa hasil query. Driver database seperti `psycopg2` perlu ditambahkan sesuai database yang digunakan.
+- `Collections`, `String`, dan `OperatingSystem` sebagai library pendukung di beberapa suite.
+- `robotmetrics` sebagai pilihan tambahan untuk membuat metrics report dari `pilotProject/pilotprojectWebsite/utility/main.py`.
 
-Buka PowerShell dari root repository, yaitu folder yang berisi `chatshopProject`, `pilotProject`, dan `websiteProject`.
-
-### 1. Install library Robot Framework
-
-```powershell
-pip install robotframework robotframework-seleniumlibrary robotframework-appiumlibrary robotframework-requests robotframework-databaselibrary
-```
-
-Library yang terlihat digunakan oleh project meliputi `SeleniumLibrary`, `AppiumLibrary`, `RequestsLibrary`, `OperatingSystem`, `Collections`, `String`, dan `Dialogs`. `robotframework-databaselibrary` disertakan untuk contoh database; pasang driver database tambahan sesuai database yang digunakan.
-
-Validasi instalasi:
-
-```powershell
-robot --version
-python -c "from SeleniumLibrary import SeleniumLibrary; from AppiumLibrary import AppiumLibrary; from RequestsLibrary import RequestsLibrary; print('Robot libraries OK')"
-```
-
-### 2. Install dan siapkan Appium untuk Android
+Jika ingin menjalankan test Android, lanjutkan dengan setup Appium berikut:
 
 ```powershell
 npm install --global appium
 appium driver install uiautomator2
-appium driver list --installed
-```
-
-Hubungkan device atau jalankan emulator, kemudian pastikan device terdeteksi:
-
-```powershell
 adb devices
 ```
 
-Jalankan Appium pada terminal terpisah sebelum test mobile:
+Extension VS Code yang membantu pekerjaan di repository ini adalah `Python`, `Pylance`, `Robot Framework Language Server`, `Robocorp Code`, `Cucumber/Gherkin`, dan `Prettier`.
 
-```powershell
-appium --address 127.0.0.1 --port 4723
-```
+Pengaturan seperti URL, credential, device, APK, capability, dan path extension dapat ditemukan di `variable.resource`, `globalVariable.resource`, `globalKeyword.resource`, atau file capability masing-masing project. Sesuaikan nilainya dengan environment yang digunakan, pilih `.venv` sebagai interpreter VS Code, dan gunakan data staging. Password atau token tidak boleh disimpan di file yang di-commit.
 
-### 3. Install extension VS Code
-
-Extension yang membantu pengembangan dan debugging:
-
-- Python
-- Pylance
-- Robot Framework Language Server
-- Robocorp Code
-- Cucumber/Gherkin
-- Prettier - Code formatter
-
-Pilih interpreter `.venv` melalui `Python: Select Interpreter` di VS Code.
-
-## Konfigurasi Sebelum Menjalankan Test
-
-Sebagian konfigurasi saat ini masih berisi path dan credential lokal. Sebelum eksekusi, periksa dan sesuaikan file berikut:
-
-- `chatshopProject/utility/dashboard-affiliate/variable.resource`: URL staging, browser, Appium URL, versi platform, nama device, dan data login.
-- `pilotProject/exampleMobile/config/capabilities.json`: path APK, device Android, automation engine, dan package/activity.
-- `pilotProject/exampleMobile/config/capabilities-iOS.json`: hanya untuk macOS/Xcode; isi `xcodeOrgId`, UDID, dan path IPA.
-- `pilotProject/pilotprojectMobile/platformAndroid/utility/globalKeyword.resource`: endpoint Appium, path APK, versi Android, device, package, dan activity.
-- `websiteProject/pagiiCMS/utility/globalVariable.resource`: path extension CAPTCHA, path file gambar, locator, dan data environment.
-- `websiteProject/pagiiCMS/utility/globalKeyword.resource`: URL staging serta alur login website.
-
-Gunakan data test khusus environment staging. Jangan commit password, token, path pribadi, atau credential production. Untuk konfigurasi baru, lebih baik pindahkan nilai tersebut ke resource lokal yang di-ignore Git atau ke variable yang diberikan saat runtime dengan `-v`.
-
-Contoh override variable saat runtime:
-
-```powershell
-robot -d results -v BASE_URL:https://example.test -v BROWSER:chrome path\ke\suite.robot
-```
-
-Catatan: nama variable harus sama persis dengan variable yang dipakai suite; tidak semua suite saat ini sudah menerima semua override tersebut.
-
-## Menjalankan Test
-
-Jalankan command dari root repository. Folder output sebaiknya berbeda untuk setiap eksekusi agar report tidak tertimpa.
-
-### Website: `chatshopProject`
-
-```powershell
-robot -d results\chatshop-login chatshopProject\testCase\dashboard-affiliate\loginAffiliator.robot
-robot -d results\chatshop-multiproduk chatshopProject\testCase\dashboard-affiliate\multiproduk
-```
-
-### Website: `pilotProject`
-
-```powershell
-robot -d results\pilot-website pilotProject\exampleWebsite\testCase\tmLoginValid.robot
-robot -d results\pilot-registration pilotProject\pilotprojectWebsite\testCase\registration
-```
-
-Untuk menjalankan suite yang dipilih oleh script Python, masuk ke folder utility agar path relatif pada `main.py` tetap valid:
-
-```powershell
-Set-Location pilotProject\pilotprojectWebsite\utility
-python main.py
-Set-Location ..\..\..
-```
-
-Script tersebut menjalankan suite registration yang terdaftar di `main.py` dan mencoba membuat metrics report dengan `robotmetrics`. Install tool tambahan bila memang diperlukan:
-
-```powershell
-pip install robotframework-metrics
-```
-
-### Website: `websiteProject/pagiiCMS`
-
-```powershell
-robot -d results\pagii-register websiteProject\pagiiCMS\feature\register_user.robot
-robot -d results\pagii-register-login websiteProject\pagiiCMS\testCase\F001-Register_Login
-```
-
-Pastikan Chrome dapat memuat extension CAPTCHA dan path extension di `globalVariable.resource` menunjuk ke folder extension yang benar. Beberapa skenario memanggil `Pause Execution`, sehingga test dapat menunggu tindakan manual.
-
-### Mobile Android: `chatshopProject`
-
-Nyalakan Appium dan Android device terlebih dahulu, lalu jalankan suite mobile yang sesuai. Contoh suite login mobile:
-
-```powershell
-robot -d results\chatshop-mobile-login chatshopProject\testCase\dashboard-affiliate\loginAffiliator.robot
-```
-
-Suite chatshop menggunakan `AppiumLibrary` dan capability Chrome Android seperti `REMOTE_URL`, `PLATFORM_VERSION`, dan `DEVICE_NAME` dari `variable.resource`. Pastikan URL, device, dan browser capability sesuai perangkat yang terhubung.
-
-### Mobile Android: `pilotProject`
-
-```powershell
-robot -d results\pilot-mobile-login pilotProject\exampleMobile\platformAndroid\testCase\loginUser.robot
-robot -d results\pilot-mobile-open-app pilotProject\exampleMobile\platformAndroid\testCase\openApps.robot
-robot -d results\pilot-mobile-register pilotProject\exampleMobile\platformAndroid\testCase\registerUser.robot
-```
-
-Contoh test native/Flutter pilot yang lebih baru berada di:
-
-```powershell
-robot -d results\pilot-mobile-native pilotProject\pilotprojectMobile\platformAndroid\testCase\nativeDev
-robot -d results\pilot-mobile-flutter pilotProject\pilotprojectMobile\platformAndroid\testCase\flutterDev
-```
-
-Jika suite merujuk APK hardcoded, ubah path APK di resource atau capability terlebih dahulu. Beberapa contoh memakai key capability lama `platfromVersion`; bila Appium menolak capability tersebut, koreksi menjadi `platformVersion` pada konfigurasi suite terkait.
-
-### API dan database
-
-```powershell
-robot -d results\pilot-api pilotProject\exampleAPI
-robot -d results\pilot-db pilotProject\exampleDB
-```
-
-Pastikan endpoint, credential, driver database, dan service yang dibutuhkan tersedia. `getOTP_reference.robot` adalah contoh/reference, bukan jaminan test end-to-end siap dijalankan tanpa data staging.
-
-### Menjalankan berdasarkan tag
-
-```powershell
-robot -d results --include valid chatshopProject\testCase
-robot -d results --include LoginTMDigital pilotProject\exampleWebsite\testCase
-```
-
-Gunakan `robot --help` untuk opsi lengkap. Nama tag ditentukan di masing-masing suite.
-
-## Output dan Report
-
-Setiap eksekusi Robot Framework menghasilkan `output.xml`, `log.html`, dan `report.html` di folder yang diberikan oleh `-d`.
-
-```powershell
-robot -d results\smoke chatshopProject\testCase\dashboard-affiliate\loginAffiliator.robot
-```
-
-Buka `results\smoke\report.html` untuk ringkasan atau `results\smoke\log.html` untuk detail keyword, screenshot, dan error. Jangan commit folder hasil test kecuali memang diperlukan sebagai evidence; tambahkan folder output ke `.gitignore` bila belum ada.
-
-## Struktur Worktree
+## Struktur Folder
 
 ```text
 AutomationResearch/
 ├── README.md
 ├── chatshopProject/
 │   ├── feature/                 # Skenario Gherkin dashboard affiliate
-│   ├── stepDefinition/          # Keyword/step definition multiproduk
-│   ├── testCase/                # Suite Robot Framework yang dijalankan
-│   └── utility/                 # Keyword global, mobile, variable, helper Python
+│   ├── stepDefinition/          # Step definition dan keyword fitur
+│   ├── testCase/                # Suite Robot Framework
+│   └── utility/                 # Keyword reusable, variable, dan helper Python
 ├── pilotProject/
-│   ├── exampleAPI/              # Contoh test API dan pengambilan OTP/reference
-│   ├── exampleDB/               # Contoh koneksi/test database
-│   ├── exampleMobile/           # Android/iOS capability dan sample suite
+│   ├── exampleAPI/              # Contoh test API
+│   ├── exampleDB/               # Contoh koneksi dan assertion database
+│   ├── exampleMobile/           # Sample Android/iOS dan capability
 │   ├── exampleWebsite/          # Sample Gherkin dan suite website
-│   ├── pilotprojectMobile/      # Pilot mobile Android native/Flutter
-│   └── pilotprojectWebsite/     # Skenario website, utility, dan runner Python
+│   ├── pilotprojectMobile/      # Suite Android native/Flutter
+│   └── pilotprojectWebsite/     # Suite website, resource, dan runner Python
 └── websiteProject/
-	├── extensions/              # Browser extension yang disimpan bersama project
-	├── gherkin-copilot-ai/      # PRD, requirement, guideline, dan feature Gherkin
-	└── pagiiCMS/                # Feature, step definition, test case, dan utility CMS
+    ├── extensions/              # Browser extension pendukung
+    ├── gherkin-copilot-ai/      # Requirement, guideline, dan feature Gherkin
+    └── pagiiCMS/                # Feature, step definition, test case, dan utility CMS
 ```
 
-Pola umum tiap project adalah `feature/gherkin -> stepDefinition/resource -> testCase`. Saat menambah skenario, buat atau sesuaikan ketiga bagian tersebut dan gunakan keyword reusable di `utility` bila perilakunya lintas suite.
+Alur file yang digunakan: `feature/gherkin -> stepDefinition/resource -> testCase`. File feature berisi skenario dengan konsep BDD/Gherkin, step definition/resource berisi keyword serta locator, dan test case menjadi file yang dijalankan oleh Robot Framework.
 
-## Alur Kerja Singkat
+## Best Practice yang Sudah Diterapkan
 
-1. Terima atau tulis skenario Gherkin dari requirement.
-2. Tambahkan negative case yang relevan, misalnya field kosong, format salah, atau tipe data tidak valid.
-3. Pastikan elemen penting memiliki ID/locator stabil.
-4. Konversi Gherkin ke `.resource` dan `.robot` bila memakai `gherkin2robotframework`.
-5. Sesuaikan hasil konversi dengan kondisi aplikasi sebenarnya, capability, data staging, dan locator.
-6. Jalankan suite setelah environment siap dan simpan report sebagai evidence.
-7. Kirim hasil test serta skenario negative case kepada coordinator untuk menentukan tindak lanjut.
+- Terdapat penerapan **waiting berbasis kondisi**, misalnya `Wait Until Element Is Visible`, `Wait Until Page Contains`, dan `Wait Until Keyword Succeeds`.
+- Terdapat penerapan **assertion yang jelas**, misalnya `Element Should Be Visible`, `Element Should Contain`, assertion status dan isi response API, serta validasi jumlah row pada database.
+- Struktur file dan keyword dibuat **maintainable** dan mudah dikembangkan dengan menerapkan struktur modular serta pendekatan **Page Object Model (POM)** melalui pemisahan `feature`, `stepDefinition`, `testCase`, dan `utility`.
 
-## Troubleshooting
+## Assertion API dan Database
 
-| Gejala | Pemeriksaan |
-| --- | --- |
-| `robot` tidak dikenali | Aktifkan `.venv` atau gunakan `\.venv\Scripts\python.exe -m robot`. |
-| `No keyword with name ... found` | Pastikan package/library terpasang dan path `Resource` dijalankan dari lokasi yang benar. |
-| Appium tidak dapat connect | Pastikan `appium` aktif di port `4723`, `adb devices` menampilkan device, dan driver `uiautomator2` terpasang. |
-| APK tidak ditemukan | Ganti path `app` pada capability/resource dengan absolute path APK lokal. |
-| Chrome/driver gagal start | Periksa versi Chrome, ChromeDriver, dan extension CAPTCHA. |
-| Test berhenti di CAPTCHA atau OTP | Sediakan data staging yang valid; beberapa flow memang memerlukan penyelesaian manual atau service email/API staging. |
-| Suite gagal karena file tidak ditemukan | Jalankan dari root dengan path lengkap atau dari folder suite yang sesuai dengan `Resource` relatifnya. |
+### API
 
-## Status
+Di `pilotProject/exampleAPI`, merupakan contoh penggunaan `RequestsLibrary`. Test membuat session, mengirim request, lalu memeriksa status dan isi response. Contoh sederhananya:
 
-Repository ini merupakan kumpulan research, sample, dan regression suite yang berkembang. Tidak semua contoh dapat dijalankan tanpa akses ke environment staging, device, APK, service API, credential, dan extension terkait.
+```robot
+Create Session    mysession    ${BASE_URL}
+${response}=    Get On Session    mysession    /books    params=type=fiction
+Should Be Equal As Integers    ${response.status_code}    200
+${body}=    Convert To String    ${response.json()}
+Should Contain    ${body}    fiction
+```
+
+Dengan pola ini, hasil API tidak hanya dianggap berhasil karena request dapat dikirim. Test juga memastikan status code dan data yang dikembalikan sesuai kebutuhan skenario.
+
+### Database
+
+Di `pilotProject/exampleDB`, merupakan contoh penggunaan `DatabaseLibrary` untuk terhubung ke PostgreSQL dan memeriksa hasil query. Contoh yang tersedia memvalidasi bahwa email tertentu tercatat tepat satu kali:
+
+```robot
+Connect To Database    psycopg2    db_name=${DB_NAME}    db_user=${DB_USER}    db_password=${DB_PASSWORD}    db_host=${DB_HOST}    db_port=${DB_PORT}
+${sql}=    Catenate    SELECT email FROM users WHERE email = '${TEST_EMAIL}'
+Check Row Count    ${sql}    ==    1
+Disconnect From Database
+```
+
+Database assertion membantu memeriksa data yang tidak selalu terlihat dari UI, misalnya data berhasil tersimpan atau status transaksi sudah berubah. Saat menambah test baru, gunakan data test yang terkontrol, simpan credential di luar source code, dan selalu tutup koneksi setelah query selesai.
