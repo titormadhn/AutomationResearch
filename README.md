@@ -1,4 +1,4 @@
-# AutomationResearch
+# Robotframework
 
 Berikut ini adalah kumpulan automation test berbasis Robot Framework. Repository ini menggabungkan kebutuhan pengujian website, mobile, API, dan database dari `pilotProject`, `chatshopProject`, serta `websiteProject`.
 
