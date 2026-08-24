@@ -1,4 +1,4 @@
-# AutomationResearch
+# Playwright
 
 Repository ini berisi research dan contoh automation test dengan Playwright untuk membantu kebutuhan pengujian Quality Assurance. Di branch `playwright` terdapat contoh pengujian website menggunakan dua pendekatan: Page Object Model dan BDD dengan Gherkin.
 
