@@ -74,7 +74,7 @@ AutomationResearch/
 
 Pada pendekatan POM, test memanggil method dari class seperti `LoginPage`, sedangkan locator dan detail interaksi disimpan di `a_pages`. Dengan cara ini, perubahan locator dapat dilakukan di satu tempat.
 
-Pada pendekatan BDD, alurnya adalah `b_features -> c_steps -> a_pages`. Feature menjelaskan skenario dengan gherkin lenguage, step definition menghubungkan kalimat Gherkin ke kode, dan Page Object menangani interaksi dengan halaman.
+Pada pendekatan BDD, alurnya adalah `b_features -> c_steps -> a_pages`. Feature menjelaskan skenario dengan gherkin language, step definition menghubungkan kalimat Gherkin ke kode, dan Page Object menangani interaksi dengan halaman.
 
 ## 3. Best Practice yang Sudah Diterapkan
 
